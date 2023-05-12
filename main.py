@@ -7,12 +7,14 @@ from pywebio.output import *
 from langchain.memory import RedisChatMessageHistory
 from pywebio.session import run_js
 
+
 history = RedisChatMessageHistory("foo")
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 chat_msgs = []
+
 
 
 async def main():
@@ -43,23 +45,35 @@ async def main():
             break
 
         prompt = data["msg"]
+        context = []
 
+
+
+        for message in history.messages:
+            if message == "HumanMessage":
+                context.append({"role": "user", "content": message.content})
+                print('i=human')
+            else:
+                context.append({"role": "assistant", "content": message.content})
+
+        context.append({"role": "user", "content": prompt})
         completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
+            model="gpt-3.5-turbo", messages=context
         )
-
+        print(context)
         messages = completion.choices[0].message["content"]
 
-        print(messages)
         msg_box.append(put_markdown(f"`{nickname}`: {data['msg']}"))
         chat_msgs.append((nickname, data["msg"]))
         history.add_user_message(prompt)
         msg_box.append(put_markdown(f"`Assistant`: {messages}"))
         history.add_ai_message(messages)
-        print(history.messages)        
 
     history.clear()
-    put_buttons(['Создать новый чат'], onclick=lambda btn:run_js('window.location.reload()'))
-        
+    put_buttons(
+        ["Создать новый чат"], onclick=lambda btn: run_js("window.location.reload()")
+    )
+
+
 if __name__ == "__main__":
     start_server(main, debug=True, port=8080, cdn=False)
