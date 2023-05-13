@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  web: 
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    volumes:
+      - .:/code/
+  redis:
+    image: "redis:alpine"
+  command: python main.py

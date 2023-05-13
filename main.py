@@ -6,6 +6,7 @@ from pywebio.input import *
 from pywebio.output import *
 from langchain.memory import RedisChatMessageHistory
 from pywebio.session import run_js
+from langchain.schema import HumanMessage
 
 
 history = RedisChatMessageHistory("foo")
@@ -50,7 +51,7 @@ async def main():
 
 
         for message in history.messages:
-            if message == "HumanMessage":
+            if type(message) == HumanMessage:
                 context.append({"role": "user", "content": message.content})
                 print('i=human')
             else:
