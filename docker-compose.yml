@@ -9,6 +9,6 @@ services:
       - redis
     volumes:
       - .:/code/
+    command: python main.py
   redis:
-    image: "redis:alpine"
-  command: python main.py
+    image: 'redis:alpine'

@@ -9,7 +9,7 @@ from pywebio.session import run_js
 from langchain.schema import HumanMessage
 
 
-history = RedisChatMessageHistory("foo")
+history = RedisChatMessageHistory("foo", url="redis://redis:6379/0")
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -53,7 +53,6 @@ async def main():
         for message in history.messages:
             if type(message) == HumanMessage:
                 context.append({"role": "user", "content": message.content})
-                print('i=human')
             else:
                 context.append({"role": "assistant", "content": message.content})
 
@@ -61,7 +60,6 @@ async def main():
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo", messages=context
         )
-        print(context)
         messages = completion.choices[0].message["content"]
 
         msg_box.append(put_markdown(f"`{nickname}`: {data['msg']}"))
@@ -77,4 +75,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    start_server(main, debug=True, port=8080, cdn=False)
+    start_server(main, debug=True, port=8000, cdn=False)
